@@ -1,39 +1,46 @@
 package com.amazkart.jwtcfg;
 
-import java.security.Key;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtUtil {
 
-	// Use a secure key for signing the JWT
-	private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	@Value("${jwt.secret}")
+	private String secretKeyString;
+
+	@Value("${jwt.expiration}")
+	private long jwtExpirationInMillis;
+
+	private SecretKey SECRET_KEY;
+
+	@PostConstruct
+	public void init() {
+		this.SECRET_KEY = Keys.hmacShaKeyFor(secretKeyString.getBytes());
+	}
 
 	public String generateToken(UserDetails userDetails) {
-		return Jwts.builder().setSubject(userDetails.getUsername()) // Set the subject (username)
-				.setIssuedAt(new Date()) // Set the issue time
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Set expiration time (10
-																							// hours)
-				.signWith(SECRET_KEY) // Sign the token with the secure key
-				.compact(); // Build the token
+		return Jwts.builder().setSubject(userDetails.getUsername()).setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMillis)).signWith(SECRET_KEY)
+				.compact();
 	}
 
 	public String extractUsername(String token) {
-		return Jwts.parserBuilder().setSigningKey(SECRET_KEY) // Use the same key for parsing
-				.build().parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody().getSubject();
 	}
 
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parserBuilder().setSigningKey(SECRET_KEY) // Use the same key for validation
-					.build().parseClaimsJws(token);
+			Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
