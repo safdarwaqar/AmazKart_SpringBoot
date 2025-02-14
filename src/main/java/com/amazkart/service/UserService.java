@@ -1,6 +1,7 @@
 package com.amazkart.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.amazkart.dao.UserRepository;
@@ -10,14 +11,19 @@ import java.util.List;
 
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
-    }
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
+	}
+
+	public User saveUser(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		System.out.println(user.getPassword().toString());
+		return userRepository.save(user);
+	}
 }
