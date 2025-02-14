@@ -13,13 +13,13 @@ import com.amazkart.entity.User;
 import com.amazkart.service.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("user")
 public class UserController {
 
 	@Autowired
 	private UserService userService;
 
-	@GetMapping
+	@GetMapping("/get")
 	public List<User> getUsers() {
 		return userService.getAllUsers();
 	}
