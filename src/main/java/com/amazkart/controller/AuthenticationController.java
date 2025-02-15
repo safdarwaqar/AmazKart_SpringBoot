@@ -1,5 +1,7 @@
 package com.amazkart.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -7,13 +9,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazkart.entity.AuthenticationRequest;
+import com.amazkart.entity.User;
 import com.amazkart.jwtcfg.CustomUserDetailsService;
 import com.amazkart.jwtcfg.JwtUtil;
+import com.amazkart.service.UserService;
 
 @RestController
+@RequestMapping("auth")
 public class AuthenticationController {
 
 	@Autowired
@@ -21,12 +27,20 @@ public class AuthenticationController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
+	
+	@PostMapping("/signup")
+	public User createUser(@RequestBody User user) {
+		return userService.saveUser(user);
+	}
 
-	@PostMapping("/authenticate")
-	public String createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+	@PostMapping()
+	public Map<String, String> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
 		try {
 			// Authenticate the user
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -39,6 +53,6 @@ public class AuthenticationController {
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 		final String jwt = jwtUtil.generateToken(userDetails); // Pass UserDetails to generateToken
 
-		return jwt;
+		return Map.of("token", jwt);
 	}
 }
