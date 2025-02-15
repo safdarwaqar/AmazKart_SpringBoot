@@ -1,4 +1,4 @@
-package com.amazkart.dao;
+package com.amazkart.repository;
 
 import java.util.Optional;
 

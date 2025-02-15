@@ -29,7 +29,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()) // Disable CSRF using the new Customizer approach
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/authenticate","/user/**").permitAll() // Allow public access
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll() // Allow public access
 																									// to the
 																									// authentication
 																									// endpoint
