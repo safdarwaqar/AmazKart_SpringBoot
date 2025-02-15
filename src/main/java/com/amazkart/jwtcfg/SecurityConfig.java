@@ -29,10 +29,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()) // Disable CSRF using the new Customizer approach
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll() // Allow public access
-																									// to the
-																									// authentication
-																									// endpoint
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll() // Allow access to /auth/**
 						.requestMatchers("/admin/**").hasRole("ADMIN") // Restrict access to ADMIN role
 						.requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // Allow USER and ADMIN roles
 						.anyRequest().authenticated() // All other requests require authentication
