@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.amazkart.entity.AuthenticationRequest;
 import com.amazkart.entity.User;
+import com.amazkart.exception.InvalidCredentialsException;
 import com.amazkart.exception.UserAlreadyExistsException;
 import com.amazkart.jwtcfg.CustomUserDetailsService;
 import com.amazkart.jwtcfg.JwtUtil;
@@ -75,7 +76,7 @@ public class AuthenticationController {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 					authenticationRequest.getUsername(), authenticationRequest.getPassword()));
 		} catch (BadCredentialsException e) {
-			throw new Exception("Incorrect username or password", e);
+			throw new InvalidCredentialsException("Incorrect username or password");
 		}
 
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
