@@ -26,6 +26,12 @@ public class GlobalExceptionHandler {
 		logger.error("UserNotFoundException: {}", ex.getMessage());
 		return createErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
+	
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<?> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+		logger.error("InvalidCredentialsException: {}", ex.getMessage());
+		return createErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+	}
 
 	// Helper method to create error response
 	private ResponseEntity<?> createErrorResponse(String message, HttpStatus status) {
@@ -33,4 +39,6 @@ public class GlobalExceptionHandler {
 				status.value());
 		return new ResponseEntity<>(errorDetails, status);
 	}
+	
+	
 }

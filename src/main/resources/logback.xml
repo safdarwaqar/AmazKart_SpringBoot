@@ -36,12 +36,12 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36}.%M [%file:%line] - %msg%n</pattern>
         </encoder>
     </appender>
 
     <!-- Root Logger Configuration -->
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE_APP" />
     </root>
