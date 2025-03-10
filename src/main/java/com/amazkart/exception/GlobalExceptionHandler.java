@@ -1,5 +1,6 @@
 package com.amazkart.exception;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -26,11 +27,17 @@ public class GlobalExceptionHandler {
 		logger.error("UserNotFoundException: {}", ex.getMessage());
 		return createErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
 	@ExceptionHandler(InvalidCredentialsException.class)
 	public ResponseEntity<?> handleInvalidCredentialsException(InvalidCredentialsException ex) {
 		logger.error("InvalidCredentialsException: {}", ex.getMessage());
 		return createErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+	public ResponseEntity<?> handleException(SQLIntegrityConstraintViolationException ex) {
+		logger.error("Exception: {}", ex.getMessage());
+		return createErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// Helper method to create error response
@@ -39,6 +46,5 @@ public class GlobalExceptionHandler {
 				status.value());
 		return new ResponseEntity<>(errorDetails, status);
 	}
-	
-	
+
 }
