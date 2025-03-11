@@ -23,10 +23,10 @@ import com.amazkart.jwtcfg.CustomUserDetailsService;
 import com.amazkart.jwtcfg.JwtUtil;
 import com.amazkart.service.UserService;
 
-import eu.bitwalker.useragentutils.Browser;
-import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import ua_parser.Client;
+import ua_parser.Parser;
 
 @RestController
 @RequestMapping("auth")
@@ -55,17 +55,21 @@ public class AuthenticationController {
 			throw new UserAlreadyExistsException("User already exists");
 		});
 
-		if (!header.contains("Postman")) {
-			UserAgent userAgent = UserAgent.parseUserAgentString(header);
-			Browser browser = userAgent.getBrowser();
-			String browserName = browser.getName();
-			String browserVersion = userAgent.getBrowserVersion().getVersion().isEmpty() ? "Unknown"
-					: userAgent.getBrowserVersion().getVersion();
-			logger.error("Browser Name: {}", browserName);
-			logger.error("Browser Version: {}", browserVersion);
-			logger.error("User-Agent: {}", header);
-		}
+		// Parse User-Agent for browser details
+	    String browserName = "Unknown";
+	    String browserVersion = "Unknown";
+	    if (header != null && !header.contains("Postman")) {
+	        Parser uaParser = new Parser(); // Using ua-parser
+	        Client client = uaParser.parse(header);
+	        browserName = client.userAgent.family;
+	        browserVersion = client.userAgent.major + "." + client.userAgent.minor;
 
+	        logger.info("Browser Name: {}", browserName);
+	        logger.info("Browser Version: {}", browserVersion);
+	        logger.info("User-Agent: {}", header);
+	    }
+		
+		user.setId(null);
 		User savedUser = userService.saveUser(user);
 		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 		String jwt = jwtUtil.generateToken(userDetails);
