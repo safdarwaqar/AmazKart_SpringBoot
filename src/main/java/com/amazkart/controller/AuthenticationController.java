@@ -21,7 +21,8 @@ import com.amazkart.exception.InvalidCredentialsException;
 import com.amazkart.exception.UserAlreadyExistsException;
 import com.amazkart.jwtcfg.CustomUserDetailsService;
 import com.amazkart.jwtcfg.JwtUtil;
-import com.amazkart.service.UserService;
+import com.amazkart.service.UserServiceImpl;
+import com.amazkart.utility.UserAgentLogger;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -35,12 +36,12 @@ public class AuthenticationController {
 
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
-	private final UserService userService;
+	private final UserServiceImpl userService;
 	private final CustomUserDetailsService userDetailsService;
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
 	public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-			UserService userService, CustomUserDetailsService userDetailsService) {
+			UserServiceImpl userService, CustomUserDetailsService userDetailsService) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
 		this.userService = userService;
@@ -50,26 +51,11 @@ public class AuthenticationController {
 	@PostMapping("/signup")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Map<String, String> createUser(@RequestBody User user, HttpServletRequest request) {
-		String header = request.getHeader("User-Agent");
+
 		userService.getUserIfExists(user.getUsername()).ifPresent(u -> {
 			throw new UserAlreadyExistsException("User already exists");
 		});
 
-		// Parse User-Agent for browser details
-	    String browserName = "Unknown";
-	    String browserVersion = "Unknown";
-	    if (header != null && !header.contains("Postman")) {
-	        Parser uaParser = new Parser(); // Using ua-parser
-	        Client client = uaParser.parse(header);
-	        browserName = client.userAgent.family;
-	        browserVersion = client.userAgent.major + "." + client.userAgent.minor;
-
-	        logger.info("Browser Name: {}", browserName);
-	        logger.info("Browser Version: {}", browserVersion);
-	        logger.info("User-Agent: {}", header);
-	    }
-		
-		user.setId(null);
 		User savedUser = userService.saveUser(user);
 		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 		String jwt = jwtUtil.generateToken(userDetails);

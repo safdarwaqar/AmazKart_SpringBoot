@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazkart.entity.User;
-import com.amazkart.service.UserService;
+import com.amazkart.service.UserServiceImpl;
 
 @RestController
 @RequestMapping("user")
 public class UserController {
 
 	@Autowired
-	private UserService userService;
+	private UserServiceImpl userService;
 
 	@GetMapping("/get")
 	public List<User> getUsers() throws IOException {
