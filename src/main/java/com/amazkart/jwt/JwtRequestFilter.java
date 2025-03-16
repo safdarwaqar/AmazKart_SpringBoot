@@ -1,4 +1,4 @@
-package com.amazkart.jwtcfg;
+package com.amazkart.jwt;
 
 import java.io.IOException;
 

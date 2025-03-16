@@ -39,6 +39,20 @@ public class GlobalExceptionHandler {
 		logger.error("Exception: {}", ex.getMessage());
 		return createErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
+	@ExceptionHandler(RoleAlreadyExistsException.class)
+	public ResponseEntity<?> handleException(RoleAlreadyExistsException ex) {
+		logger.error("Exception: {}", ex.getMessage());
+		return createErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<?> handleException(IllegalArgumentException ex) {
+		logger.error("Exception: {}", ex.getMessage());
+		return createErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	
 
 	// Helper method to create error response
 	private ResponseEntity<?> createErrorResponse(String message, HttpStatus status) {

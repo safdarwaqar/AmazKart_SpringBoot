@@ -1,31 +1,28 @@
 package com.amazkart.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazkart.dto.RoleDto;
-import com.amazkart.entity.Role;
-import com.amazkart.repository.RoleRepository;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import com.amazkart.exception.RoleAlreadyExistsException;
+import com.amazkart.service.RoleService;
 
 @RestController
-@RequestMapping("/role")
+@RequestMapping("api/super/role")
 public class RoleController {
 
 	@Autowired
-	private RoleRepository roleRepository;
+	private RoleService roleService;
 
 	@PostMapping("/create")
-	public Role createRole(@RequestBody RoleDto role) {
-		
-		if (roleRepository.findByName(role.getName())) {
-			throw new RuntimeException("Role already exists");
-		}
+	public ResponseEntity<?> createRole(@RequestBody RoleDto roleDto) throws RoleAlreadyExistsException {
 
-		return null;
+		return ResponseEntity.status(HttpStatus.CREATED).body(roleService.createRole(roleDto));
 	}
 
 }

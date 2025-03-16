@@ -65,7 +65,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public User saveUser(User user) {
-		// Encode the password before saving the user and set userId to null as its auto generated in the database
+		// Encode the password before saving the user and set userId to null as its auto
+		// generated in the database
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setId(null);
 
@@ -114,6 +115,11 @@ public class UserServiceImpl implements UserService {
 
 	public Optional<User> getUserIfExists(String username) {
 		return userRepository.findByUsername(username);
+	}
+
+	@Override
+	public Optional<User> findById(Long userId) {
+		return userRepository.findById(userId);
 	}
 
 }

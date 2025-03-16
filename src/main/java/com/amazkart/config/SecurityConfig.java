@@ -1,4 +1,4 @@
-package com.amazkart.jwtcfg;
+package com.amazkart.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.amazkart.jwt.JwtRequestFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -30,38 +32,34 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()) // Disable CSRF using the new Customizer approach
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-								"/webjars/**")
-						.permitAll() // Allow access to /auth/**
-						.requestMatchers("/admin/**").hasRole("ADMIN") // Restrict access to ADMIN role
-						.requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // Allow USER and ADMIN roles
-						.anyRequest().authenticated() // All other requests require authentication
-				).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use
-																												// stateless
-																												// sessions
-				).addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+		http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/admin/**").hasRole("ADMIN") // Restrict ADMIN
+																										// endpoints
+						.requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // USER and ADMIN access
+						.requestMatchers("/api/super/**").hasRole("SUPER") // Restricted to SUPER
+						.requestMatchers("/api/**").authenticated() // Require authentication for all /api/** endpoints
+						.anyRequest().permitAll() // Make all other endpoints public
+				).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless
+																												// session
+				.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 
 		return http.build();
 	}
-	
-	@Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**").allowedOrigins("http://localhost:3000")
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
+						.allowCredentials(true);
+			}
+		};
+	}
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 }

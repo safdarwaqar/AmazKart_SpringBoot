@@ -1,27 +1,14 @@
-
 package com.amazkart.entity;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import lombok.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Getter
@@ -31,24 +18,28 @@ import lombok.Setter;
 @Builder
 @Table(name = "orders")
 public class Order {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
+	@JsonIgnore
 	private User user;
+
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<OrderItem> items;
 
 	@ManyToMany
 	@JoinTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
-	private List<Product> products;
-	@CreationTimestamp
+	private Set<Product> products = new HashSet<>();
+
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date orderDate;
+
 	private Double totalAmount;
 
-	@UpdateTimestamp
-	private LocalDateTime updatedOn;
-
-	// Getters and Setters
+	@Enumerated(EnumType.STRING)
+	private OrderStatus status;
 }

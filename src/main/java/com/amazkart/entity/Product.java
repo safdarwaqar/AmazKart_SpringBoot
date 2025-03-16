@@ -1,8 +1,9 @@
 package com.amazkart.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -47,7 +48,8 @@ public class Product {
 	private List<Cart> carts;
 
 	@ManyToMany(mappedBy = "products")
-	private List<Order> orders;
+	private Set<Order> orders = new HashSet<>();
+	
 
 	@CreationTimestamp
 	private LocalDateTime createdAt;
