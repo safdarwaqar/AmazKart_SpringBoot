@@ -1,4 +1,4 @@
-package com.amazkart.jwtcfg;
+package com.amazkart.jwt;
 
 import java.io.IOException;
 
@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.amazkart.utility.UserAgentLogger;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,6 +29,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+
+		UserAgentLogger.logUserAgent(request.getHeader("User-Agent"));
+
 		final String authorizationHeader = request.getHeader("Authorization");
 
 		String username = null;

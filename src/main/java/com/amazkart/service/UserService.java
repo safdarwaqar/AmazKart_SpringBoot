@@ -1,52 +1,27 @@
 package com.amazkart.service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.amazkart.entity.Address;
 import com.amazkart.entity.User;
-import com.amazkart.repository.AddressRepository;
-import com.amazkart.repository.UserRepository;
 
-@Service
-public class UserService {
-	@Autowired
-	private UserRepository userRepository;
+public interface UserService {
 
-	@Autowired
-	private AddressRepository addressRepository;
+	List<User> getAllUsers();
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	User saveUser(User user);
 
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
-	}
+	void updateUserProfileImage(Long userId, MultipartFile file) throws IOException;
 
-	public User saveUser(User user) {
-		// Encode the password before saving the user
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
+	Boolean userExists(String username);
 
-		// Save the user entity
-		User savedUser = userRepository.save(user);
+	Optional<User> getUserIfExists(String username);
 
-		// Ensure that address is set properly before saving
-		if (!savedUser.getAddresses().isEmpty()) {
-			Address address = savedUser.getAddresses().stream().findFirst().get(); // Get the 0th index
-			address.setUser(savedUser); // Link the saved user to the address
+	Optional<User> findById(Long userId);
 
-			// Save the address entity
-			addressRepository.save(address);
-		}
-
-		return savedUser; // Return the saved user
-	}
-
-	public Boolean userExists(String username) {
-		return userRepository.existsByUsername(username);
-	}
+	
 
 }

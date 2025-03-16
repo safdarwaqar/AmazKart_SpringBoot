@@ -1,20 +1,18 @@
-
 package com.amazkart.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -30,31 +28,34 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "carts")
-public class Cart {
+@Table(name = "products")
+public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
+	private String name;
+	private String description;
+	private Double price;
+	private Integer stock;
 
-    @ManyToMany
-    @JoinTable(
-        name = "cart_products",
-        joinColumns = @JoinColumn(name = "cart_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products;
+	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private Category category;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+	@ManyToMany(mappedBy = "products")
+	private List<Cart> carts;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedOn;
+	@ManyToMany(mappedBy = "products")
+	private Set<Order> orders = new HashSet<>();
+	
 
-    // Getters and Setters
+	@CreationTimestamp
+	private LocalDateTime createdAt;
+
+	@UpdateTimestamp
+	private LocalDateTime updatedOn;
+
+	// Getters and Setters
 }

@@ -19,26 +19,26 @@ import com.amazkart.entity.AuthenticationRequest;
 import com.amazkart.entity.User;
 import com.amazkart.exception.InvalidCredentialsException;
 import com.amazkart.exception.UserAlreadyExistsException;
-import com.amazkart.jwtcfg.CustomUserDetailsService;
-import com.amazkart.jwtcfg.JwtUtil;
-import com.amazkart.service.UserService;
+import com.amazkart.jwt.CustomUserDetailsService;
+import com.amazkart.jwt.JwtUtil;
+import com.amazkart.service.UserServiceImpl;
 
-import eu.bitwalker.useragentutils.Browser;
-import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("auth")
+@Transactional
 public class AuthenticationController {
 
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
-	private final UserService userService;
+	private final UserServiceImpl userService;
 	private final CustomUserDetailsService userDetailsService;
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
 	public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-			UserService userService, CustomUserDetailsService userDetailsService) {
+			UserServiceImpl userService, CustomUserDetailsService userDetailsService) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
 		this.userService = userService;
@@ -47,26 +47,18 @@ public class AuthenticationController {
 
 	@PostMapping("/signup")
 	@ResponseStatus(HttpStatus.CREATED)
-	public User createUser(@RequestBody User user, HttpServletRequest request) {
-		String header = request.getHeader("User-Agent");
-		Boolean userExists = userService.userExists(user.getUsername());
-		if (userExists) {
+	public Map<String, String> createUser(@RequestBody User user, HttpServletRequest request) {
+
+		userService.getUserIfExists(user.getUsername()).ifPresent(u -> {
 			throw new UserAlreadyExistsException("User already exists");
-		}
-		if (header.contains("Postman")) {
-			return userService.saveUser(user);
-		}
-		UserAgent userAgent = UserAgent.parseUserAgentString(header);
-		Browser browser = userAgent.getBrowser();
-		String browserName = browser.getName();
-		String browserVersion = userAgent.getBrowserVersion().getVersion().isEmpty() ? "Unknown"
-				: userAgent.getBrowserVersion().getVersion();
+		});
 
-		logger.error("Browser Name: {}", browserName);
-		logger.error("Browser Version: {}", browserVersion);
-
-		logger.error("User-Agent: {}", header);
-		return userService.saveUser(user);
+		User savedUser = userService.saveUser(user);
+		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+		String jwt = jwtUtil.generateToken(userDetails);
+		logger.debug(jwt);
+		return Map.of("token", jwt, "username", savedUser.getUsername(), "firstName", savedUser.getFirstName(),
+				"lastName", savedUser.getLastName());
 	}
 
 	@PostMapping()
@@ -76,7 +68,7 @@ public class AuthenticationController {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 					authenticationRequest.getUsername(), authenticationRequest.getPassword()));
 		} catch (BadCredentialsException e) {
-			throw new InvalidCredentialsException("Incorrect username or password");
+			throw new InvalidCredentialsException(e.getLocalizedMessage().toString());
 		}
 
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
