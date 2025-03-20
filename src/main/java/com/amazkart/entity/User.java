@@ -76,6 +76,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Payment> payments = new ArrayList<>();
+	
+	@Column(name = "user_active")
+	private Boolean isAccountActive = true;
 
 	@Override
 	public int hashCode() {
