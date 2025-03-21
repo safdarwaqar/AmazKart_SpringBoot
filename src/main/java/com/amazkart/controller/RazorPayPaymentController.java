@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.amazkart.service.RazorPayPaymentService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/payment")
+@Slf4j
 public class RazorPayPaymentController {
 
 	@Autowired
@@ -18,8 +21,10 @@ public class RazorPayPaymentController {
 	public String createOrder(@RequestParam double amount, @RequestParam String currency,
 			@RequestParam String receipt) {
 		try {
+			log.info("Initiating request to create order");
 			return razorpayService.createPayment(amount, currency, receipt);
 		} catch (Exception e) {
+			log.error("Exception occurred while creating RazorPay order: {}", e.toString());
 			return "Error while creating order: " + e.getMessage();
 		}
 	}
