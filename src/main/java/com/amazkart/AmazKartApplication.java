@@ -10,7 +10,6 @@ public class AmazKartApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AmazKartApplication.class, args);
-		//
 	}
 	
 	@Bean
