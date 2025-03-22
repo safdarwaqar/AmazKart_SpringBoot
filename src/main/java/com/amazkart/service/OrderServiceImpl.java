@@ -1,5 +1,6 @@
 package com.amazkart.service;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
 	private final OrderRepository orderRepository;
@@ -30,7 +32,6 @@ public class OrderServiceImpl implements OrderService {
 	private final ModelMapper modelMapper;
 
 	@Override
-	@Transactional
 	public OrderDto placeOrder(Long userId, OrderDto orderDto) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -45,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
 //					.orElseThrow(() -> new RuntimeException("Product not found"));
 
 			Product product = productRepository.findById(itemDto.getProductId())
-					.orElse(Product.builder().id(203l).price(100.0).build());
+					.orElse(Product.builder().id(20l).price(100.0).build());
 			OrderItem item = new OrderItem();
 			item.setOrder(order);
 			item.setProduct(product);
@@ -87,4 +88,5 @@ public class OrderServiceImpl implements OrderService {
 		order.setStatus(OrderStatus.CANCELED);
 		orderRepository.save(order);
 	}
+
 }

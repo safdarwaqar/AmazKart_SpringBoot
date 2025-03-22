@@ -11,11 +11,13 @@ public interface AddressService {
 	AddressDto getAddress(Long addressId);
 
 	AddressDto getAddressByUserId(Long userId);
-	
+
 	void deleteAddress(Long addressId);
-	
+
 	long getAddressCount(Long userId);
-	
+
 	AddressDto addAddressToUser(Long userId, AddressDto addressDto);
+
+	AddressDto addAddressToUser(String username, AddressDto addressDto);
 
 }

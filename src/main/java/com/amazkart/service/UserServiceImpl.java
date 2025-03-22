@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -111,6 +109,7 @@ public class UserServiceImpl implements UserService {
 		Path uploadDirectory = Paths.get(uploadDir);
 		if (!Files.exists(uploadDirectory)) {
 			Files.createDirectories(uploadDirectory);
+			log.error("Upload directory not found: {}" , uploadDir);
 			log.error("Upload directory created: {}" , uploadDir);
 		}
 
@@ -132,6 +131,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public Optional<User> getUserIfExists(String username) {
+		return userRepository.findByUsername(username);
+	}
+
+	@Override
+	public Optional<User> findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
 

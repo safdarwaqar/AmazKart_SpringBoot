@@ -59,7 +59,8 @@ public class AddressServiceImpl implements AddressService {
 	@Override
 	public AddressDto getAddress(Long addressId) {
 		Optional<Address> optionalAddress = addressRepository.findById(addressId);
-		return optionalAddress.map(address -> modelMapper.map(address, AddressDto.class)).orElseThrow(() -> new IllegalArgumentException("Invalid address ID: " + addressId));
+		return optionalAddress.map(address -> modelMapper.map(address, AddressDto.class))
+				.orElseThrow(() -> new IllegalArgumentException("Invalid address ID: " + addressId));
 	}
 
 	@Override
@@ -97,6 +98,12 @@ public class AddressServiceImpl implements AddressService {
 	@Override
 	public long getAddressCount(Long userId) {
 		return addressRepository.countByUserId(userId);
+	}
+
+	@Override
+	public AddressDto addAddressToUser(String username, AddressDto addressDto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

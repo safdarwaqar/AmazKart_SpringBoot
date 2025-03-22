@@ -33,11 +33,10 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/admin/**").hasRole("ADMIN") // Restrict ADMIN
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/admin/**").hasAnyRole("ADMIN","SUPER") // Restrict ADMIN
 																										// endpoints
-						.requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // USER and ADMIN access
+						.requestMatchers("/api/**").hasAnyRole("USER", "ADMIN") // USER and ADMIN access
 						.requestMatchers("/api/super/**").hasRole("SUPER") // Restricted to SUPER
-						.requestMatchers("/api/**").authenticated() // Require authentication for all /api/** endpoints
 						.anyRequest().permitAll() // Make all other endpoints public
 				).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless
 																												// session
