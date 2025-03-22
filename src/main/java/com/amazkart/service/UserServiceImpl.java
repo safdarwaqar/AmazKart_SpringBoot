@@ -23,7 +23,10 @@ import com.amazkart.entity.User;
 import com.amazkart.repository.AddressRepository;
 import com.amazkart.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
@@ -42,8 +45,6 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${file.upload-decode}")
 	private String outputPath;
-
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	public List<User> getAllUsers() {
 		List<User> records = userRepository.findAll();
@@ -93,11 +94,28 @@ public class UserServiceImpl implements UserService {
 		// Generate the file path based on the specified upload directory
 		String fileName = UUID.randomUUID().toString() + "_"
 				+ Optional.ofNullable(file.getOriginalFilename()).orElse("");
-		String extention = file.getContentType().split("/")[1];
+		String originalFilename = file.getOriginalFilename();
+		if (originalFilename != null && originalFilename.contains(".")) {
+		    String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+		    String fileType = file.getContentType().split("/")[1];
+		    log.info("File extension: {}", extension);
+		    log.info("File type: {}", fileType);
+		} else {
+		    throw new IllegalArgumentException("Invalid file or missing extension");
+		}
+
+		
 		Path filePath = Paths.get(uploadDir).resolve(fileName);
 
+		// Ensure the directory exists, and create it if it doesn't
+		Path uploadDirectory = Paths.get(uploadDir);
+		if (!Files.exists(uploadDirectory)) {
+			Files.createDirectories(uploadDirectory);
+			log.error("Upload directory created: {}" , uploadDir);
+		}
+
 		// Save the uploaded file to the specified file path
-		logger.debug("Saving file to: " + filePath);
+		log.debug("Saving file to: {}" , filePath);
 		Files.write(filePath, file.getBytes());
 
 		// Encode the file to Base64 if you need to store it in the database
@@ -106,7 +124,7 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 
 		// Optionally, you can keep or delete the file after encoding it
-		logger.debug("File saved successfully and encoded to Base64.");
+		log.debug("File saved successfully and encoded to Base64.");
 	}
 
 	public Boolean userExists(String username) {
