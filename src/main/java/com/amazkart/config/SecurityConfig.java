@@ -25,16 +25,17 @@ public class SecurityConfig {
 	private JwtRequestFilter jwtRequestFilter;
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
 			throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/admin/**").hasAnyRole("ADMIN","SUPER") // Restrict ADMIN
-																										// endpoints
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER") // Restrict
+																													// ADMIN
+						// endpoints
 						.requestMatchers("/api/**").hasAnyRole("USER", "ADMIN") // USER and ADMIN access
 						.requestMatchers("/api/super/**").hasRole("SUPER") // Restricted to SUPER
 						.anyRequest().permitAll() // Make all other endpoints public
@@ -46,7 +47,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public WebMvcConfigurer corsConfigurer() {
+	WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {

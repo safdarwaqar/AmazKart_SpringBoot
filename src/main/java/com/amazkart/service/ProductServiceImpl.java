@@ -1,7 +1,9 @@
 package com.amazkart.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.amazkart.dto.ProductDTO;
@@ -9,9 +11,6 @@ import com.amazkart.entity.Category;
 import com.amazkart.entity.Product;
 import com.amazkart.repository.CategoryRepository;
 import com.amazkart.repository.ProductRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
