@@ -19,6 +19,7 @@ import com.amazkart.entity.AuthenticationRequest;
 import com.amazkart.entity.User;
 import com.amazkart.exception.InvalidCredentialsException;
 import com.amazkart.exception.UserAlreadyExistsException;
+import com.amazkart.jwt.CustomUserDetails;
 import com.amazkart.jwt.CustomUserDetailsService;
 import com.amazkart.jwt.JwtUtil;
 import com.amazkart.service.UserServiceImpl;
@@ -54,7 +55,7 @@ public class AuthenticationController {
 		});
 
 		User savedUser = userService.saveUser(user);
-		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(user.getUsername());
 		String jwt = jwtUtil.generateToken(userDetails);
 		logger.debug(jwt);
 		return Map.of("token", jwt, "username", savedUser.getUsername(), "firstName", savedUser.getFirstName(),
@@ -71,7 +72,7 @@ public class AuthenticationController {
 			throw new InvalidCredentialsException(e.getLocalizedMessage().toString());
 		}
 
-		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+		final CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 		final String jwt = jwtUtil.generateToken(userDetails);
 
 		return Map.of("token", jwt);

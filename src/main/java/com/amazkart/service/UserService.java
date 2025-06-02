@@ -22,6 +22,6 @@ public interface UserService {
 
 	Optional<User> findById(Long userId);
 
-	
+	Optional<User> findByUsername(String username);
 
 }

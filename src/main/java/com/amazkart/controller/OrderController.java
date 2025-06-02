@@ -2,22 +2,29 @@ package com.amazkart.controller;
 
 import com.amazkart.dto.OrderDto;
 import com.amazkart.service.OrderService;
+import com.amazkart.utility.JwtDetailExtractor;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/orders")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
+	@Autowired
 	private final OrderService orderService;
 
-	@PostMapping("/{userId}")
-	public ResponseEntity<OrderDto> placeOrder(@PathVariable Long userId, @RequestBody OrderDto orderDto) {
-		return ResponseEntity.ok(orderService.placeOrder(userId, orderDto));
+	@PostMapping("/place-order")
+	public ResponseEntity<OrderDto> placeOrder(@RequestBody OrderDto orderDto) {
+
+		return ResponseEntity
+				.ok(orderService.placeOrder(JwtDetailExtractor.getUserDetailsFromSpring().getUserId(), orderDto));
 	}
 
 	@GetMapping("/{orderId}")
@@ -26,8 +33,9 @@ public class OrderController {
 	}
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<OrderDto>> getOrdersByUser(@PathVariable Long userId) {
-		return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+	public ResponseEntity<List<OrderDto>> getOrdersByUser() {
+		return ResponseEntity
+				.ok(orderService.getOrdersByUserId(JwtDetailExtractor.getUserDetailsFromSpring().getUserId()));
 	}
 
 	@GetMapping
